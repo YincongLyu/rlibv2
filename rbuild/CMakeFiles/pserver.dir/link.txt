@@ -1,0 +1,1 @@
+/usr/bin/g++    -g   CMakeFiles/pserver.dir/examples/rc_pingpong/server.cc.o  -o pserver -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

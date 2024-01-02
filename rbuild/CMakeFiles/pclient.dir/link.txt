@@ -1,0 +1,1 @@
+/usr/bin/g++    -g   CMakeFiles/pclient.dir/examples/rc_pingpong/client.cc.o  -o pclient -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

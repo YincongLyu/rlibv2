@@ -1,0 +1,51 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_5c66c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_5c66c.dir/build.make CMakeFiles/cmTC_5c66c.dir/build
+make[1]: Entering directory '/home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5c66c.dir/CheckSymbolExists.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTC_5c66c.dir/CheckSymbolExists.c.o   -c /home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_5c66c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5c66c.dir/link.txt --verbose=1
+/usr/bin/gcc       CMakeFiles/cmTC_5c66c.dir/CheckSymbolExists.c.o  -o cmTC_5c66c -rdynamic 
+/usr/bin/ld: CMakeFiles/cmTC_5c66c.dir/CheckSymbolExists.c.o: in function `main':
+CheckSymbolExists.c:(.text+0x1f): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_5c66c.dir/build.make:98: cmTC_5c66c] Error 1
+make[1]: Leaving directory '/home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp'
+make: *** [Makefile:126: cmTC_5c66c/fast] Error 2
+
+File /home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_94280/fast"
+/usr/bin/make -f CMakeFiles/cmTC_94280.dir/build.make CMakeFiles/cmTC_94280.dir/build
+make[1]: Entering directory '/home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_94280.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_94280.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.3/Modules/CheckFunctionExists.c
+Linking C executable cmTC_94280
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_94280.dir/link.txt --verbose=1
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_94280.dir/CheckFunctionExists.c.o  -o cmTC_94280 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: Leaving directory '/home/yincong/github_proj/rdma_learning/rlibv2/rbuild/CMakeFiles/CMakeTmp'
+make[1]: *** [CMakeFiles/cmTC_94280.dir/build.make:98: cmTC_94280] Error 1
+make: *** [Makefile:126: cmTC_94280/fast] Error 2
+
+

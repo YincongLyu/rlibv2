@@ -1,0 +1,1 @@
+/usr/bin/g++    -g   CMakeFiles/roclient.dir/examples/rc_overflow/client.cc.o  -o roclient -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

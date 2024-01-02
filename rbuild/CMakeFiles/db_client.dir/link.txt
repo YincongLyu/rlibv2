@@ -1,0 +1,1 @@
+/usr/bin/g++    -g   CMakeFiles/db_client.dir/benchs/db_bench/client.cc.o  -o db_client -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 
