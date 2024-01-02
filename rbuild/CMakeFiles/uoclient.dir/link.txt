@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/uoclient.dir/examples/ud_overflow/client.cc.o  -o uoclient -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

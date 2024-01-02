@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/userver.dir/examples/ud_pingpong/server.cc.o  -o userver -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

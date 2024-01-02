@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/or_client.dir/benchs/or_bench/client.cc.o  -o or_client -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

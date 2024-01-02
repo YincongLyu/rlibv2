@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/fly_client.dir/benchs/fly_bench/client.cc.o  -o fly_client -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 
