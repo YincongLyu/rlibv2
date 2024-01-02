@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_definitions(-std=c++14)
+add_definitions(-std=c++17) #support std::optional
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
+set(CMAKE_C_COMPILER "/usr/bin/gcc")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-
+# target_compile_features(your_target_name PRIVATE cxx_std_17)
 ## tests
 enable_testing()
 

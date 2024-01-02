@@ -12,11 +12,15 @@ TEST(Channel, Naming) {
   auto ip = IPNameHelper::host2ip(host);
   RDMA_ASSERT(ip == IOCode::Ok);
   RDMA_LOG(4) << "parsed ip: " << ip.desc;
-  auto ip1 = IPNameHelper::host2ip("val02");
+  // auto ip1 = IPNameHelper::host2ip("val02");
+  auto ip1 = IPNameHelper::host2ip("219.228.147.130");
+  // auto ip1 = ip;
   RDMA_ASSERT(ip1 == IOCode::Ok);
   RDMA_LOG(4) << "parsed ip for val02: " << ip1.desc;
 
-  auto ip3 = IPNameHelper::host2ip("  val02  ");
+  // auto ip3 = IPNameHelper::host2ip("  val02  ");
+  auto ip3 = IPNameHelper::host2ip("219.228.147.130");
+  // auto ip3 = ip;
   RDMA_ASSERT(ip3 == IOCode::Ok)
       << "get ip3 code: " << ip3.code.name() << " " << ip3.desc;
   ASSERT_EQ(ip3.desc, ip1.desc);

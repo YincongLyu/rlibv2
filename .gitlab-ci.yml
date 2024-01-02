@@ -22,7 +22,7 @@ test:
 
 example:
   stage : deploy
-  tags:
+  ta
   - rdma
   script:
   - cmake .;

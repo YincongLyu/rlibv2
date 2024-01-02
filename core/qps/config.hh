@@ -16,7 +16,7 @@ const u32 kDcKey = 1024;
 
 class RC;
 class UD;
-class DC;
+// class DC;
 class DCTarget;
 class Impl;
 
@@ -60,6 +60,14 @@ public:
     return *this;
   }
 
+  int get_qkey() const {
+    return qkey;
+  }
+
+  int get_access_flags() const {
+    return access_flags;
+  }
+
   int max_recv_sz() const {
     return max_recv_size;
   }
@@ -75,8 +83,8 @@ public:
   }
 
   QPConfig &add_access_atomic() {
-    access_flags |= IBV_ACCESS_REMOTE_ATOMIC;
     return *this;
+    access_flags |= IBV_ACCESS_REMOTE_ATOMIC;
   }
 
   QPConfig &set_qkey(int k) {

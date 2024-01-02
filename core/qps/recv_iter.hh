@@ -9,7 +9,7 @@ namespace qp {
 /*!
   RecvIter helps traversing two-sided messages, using recv_cq.
 
-  \note:  we donot store the smart pointer for the performance reason
+  \note:  we don't store the smart pointer for the performance reason
 
   Example:
   `
@@ -22,7 +22,8 @@ namespace qp {
   }
   `
  */
-template <typename QP, usize es> class RecvIter {
+template <typename QP, usize es>
+class RecvIter {
   QP *qp = nullptr;
   RecvEntries<es> *entries = nullptr;
   ibv_wc *wcs;
@@ -39,6 +40,7 @@ public:
   RecvIter(Arc<QP> &qp, ibv_wc *wcs)
       : qp(qp.get()), wcs(wcs), total_msgs(ibv_poll_cq(qp->recv_cq, es, wcs)) {}
 
+  /* I guess the mostly used*/
   RecvIter(Arc<QP> &qp, Arc<RecvEntries<es>> &e) : RecvIter(qp, e->wcs) {
     entries = e.get();
   }

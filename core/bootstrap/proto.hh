@@ -80,11 +80,11 @@ struct __attribute__((packed)) RCReply {
   u64 key;
 };
 
-struct __attribute__((packed)) DCReply {
-  CallbackStatus status;
-  ::rdmaio::qp::DCAttr attr;
-  u64 key;
-};
+// struct __attribute__((packed)) DCReply {
+//   CallbackStatus status;
+//   ::rdmaio::qp::DCAttr attr;
+//   u64 key;
+// };
 
 struct __attribute__((packed)) DelRCReq {
   // parameter for querying the QP

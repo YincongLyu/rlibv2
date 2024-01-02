@@ -91,7 +91,8 @@ struct __attribute__((packed)) MsgsHeader {
   and we can decode these buffers separately.
   Note that at most *kMaxMultiMsg* can be encoded.
  */
-template <usize MAXSZ = kMaxMsgSz> struct MultiMsg {
+template <usize MAXSZ = kMaxMsgSz>
+struct MultiMsg {
   MsgsHeader *header;
   ByteBuffer *buf = nullptr;
 
@@ -181,7 +182,7 @@ private:
     }
   }
 
-  MultiMsg(const ByteBuffer &m, usize reserve_sz) : buf(&m) { init(reserve_sz); }
+  MultiMsg(ByteBuffer &m, usize reserve_sz) : buf(&m) { init(reserve_sz); }
 
   void init(const usize &reserve_sz) {
     usize true_reserve_sz = std::min(

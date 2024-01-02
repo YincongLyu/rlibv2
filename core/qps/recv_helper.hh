@@ -9,7 +9,8 @@ namespace qp {
 /*!
   helper data struture for two-sided QP recv
  */
-template <usize N> struct RecvEntries {
+template <usize N>
+struct RecvEntries {
   /*!
    internal data structure used for send/recv verbs
   */
@@ -29,6 +30,9 @@ template <usize N> struct RecvEntries {
 
   ibv_recv_wr *header_ptr() { return wr_ptr(header); }
 
+  /*
+    check with wr's struct： wr_id、next、ibv_sge、num_sge
+  */
   void sanity_check() {
     for (uint i = 0; i < N - 1; ++i) {
       RDMA_ASSERT((u64)(wr_ptr(i)->next) == (u64)(wr_ptr(i + 1)));
@@ -71,7 +75,8 @@ public:
 /*!
   This version only uses one template: N
  */
-template <usize N> class RecvEntriesFactoryv2 {
+template <usize N> 
+class RecvEntriesFactoryv2 {
 public:
   static Arc<RecvEntries<N>> create(Arc<AbsRecvAllocator> &alloc_p,
                                     const usize &msg_sz) {

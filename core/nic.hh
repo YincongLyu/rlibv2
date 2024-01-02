@@ -61,6 +61,7 @@ public:
   }
 
   /*!
+   * whether the device's port is active
    */
   Result<std::string> is_active() const {
     if (!valid()) {

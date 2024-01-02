@@ -29,7 +29,7 @@ struct RMem : public std::enable_shared_from_this<RMem>  { // state for "R"egist
   using dealloc_fn_t = std::function<void(raw_ptr_t)>;
 
   /*!
-    Fixme: hwo to automatically dealloc the memory ?
+    Fixme: how to automatically dealloc the memory ?
    */
   raw_ptr_t raw_ptr;
   const u64 sz;

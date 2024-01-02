@@ -29,7 +29,8 @@ namespace rdmaio {
   `
 
  */
-template <typename K, typename V> class Factory {
+template <typename K, typename V>
+class Factory {
   std::map<K,std::pair<Arc<V>,u64>> store;
   std::mutex lock;
 
@@ -65,7 +66,7 @@ public:
 
   Arc<V> query_or_default(const K &k, V *def) {
     auto res = query(k);
-    if (res);
+    if (res)
       return res.value();
     return wrapper_raw_ptr(def);
   }
@@ -88,6 +89,7 @@ public:
   /*!
     Create and insert a the V
     "args" are used to construct a Arc<V>.
+    Finally, return the reg's V
    */
   template <typename... Ts>
   Option<std::pair<Arc<V>, u64>> create_then_reg(const K &k, Ts... args) {

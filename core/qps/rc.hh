@@ -4,6 +4,7 @@
 
 #include "./mod.hh"
 #include "./impl.hh"
+#include <infiniband/verbs.h>
 
 namespace rdmaio {
 
@@ -107,7 +108,7 @@ public:
   static Option<Arc<RC>> create(Arc<RNic> nic,
                                 const QPConfig &config = QPConfig(),
                                 ibv_cq *recv_cq = nullptr) {
-    auto res = Arc<RC>(new RC(nic, config,recv_cq));
+    Arc<RC> res = Arc<RC>(new RC(nic, config,recv_cq));
     if (res->valid()) {
       return Option<Arc<RC>>(std::move(res));
     }
@@ -142,27 +143,27 @@ public:
     The `attr` must be fetched from another machine.
    */
   Result<std::string> connect(const QPAttr &attr) {
-    auto res = qp_status();
+    Result<ibv_qp_state> res = qp_status();
     if (res.code == IOCode::Ok) {
-      auto status = res.desc;
+      ibv_qp_state status = res.desc;
       switch (status) {
-      case IBV_QPS_RTS:
-        return Ok(std::string("already connected"));
-        // TODO: maybe we should check other status
-      default:
-        // really connect the QP
-        {
-          // first bring QP to ready to recv. note we bring it to ready to init
-          // during class's construction.
-          auto res =
-              Impl::bring_rc_to_rcv(qp, my_config, attr, my_attr().port_id);
-          if (res.code != IOCode::Ok)
-            return res;
-          // then we bring it to ready to send.
-          res = Impl::bring_rc_to_send(qp, my_config);
-          if (res.code != IOCode::Ok)
-            return res;
-        }
+        case IBV_QPS_RTS:
+          return Ok(std::string("already connected"));
+          // TODO: maybe we should check other status
+        default:
+          // really connect the QP
+          {
+            // first bring QP to ready to recv. note we bring it to ready to init
+            // during class's construction.
+            auto res =
+                Impl::bring_rc_to_rcv(qp, my_config, attr, my_attr().port_id);
+            if (res.code != IOCode::Ok)
+              return res;
+            // then we bring it to ready to send.
+            res = Impl::bring_rc_to_send(qp, my_config);
+            if (res.code != IOCode::Ok)
+              return res;
+          }
         this->status = Ok();
         return Ok(std::string(""));
       }
@@ -214,7 +215,8 @@ public:
         << "a QP should be Ok to send, current status: " << status.code.name();
 
     struct ibv_sge sge {
-      .addr = (u64)(payload.local_addr), .length = desc.len,
+      .addr = (u64)(payload.local_addr), 
+      .length = desc.len,
       .lkey = local_mr.lkey
     };
 

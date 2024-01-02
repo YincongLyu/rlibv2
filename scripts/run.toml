@@ -1,9 +1,11 @@
 [[pass]]
-host = "val08"
+# host = "val08"
+host = "219.228.147.130"
 path = ''
 cmd  = 'cd rib/; ./pserver'
 
 [[pass]]
-host = "val08"
+# host = "val08"
+host = "219.228.147.130"
 path = ''
 cmd  = 'cd rib/; ./pclient'

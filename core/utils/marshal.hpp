@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "../common.hh"
 
 namespace rdmaio
 {
@@ -32,7 +32,7 @@ public:
     return b.substr(pos, size);
   }
 
-    static Buf_t direct_forward(const Buf_t &b,int size)
+  static Buf_t direct_forward(const Buf_t &b,int size)
   {
     return forward(b,size,b.size() - size);
   }
@@ -47,7 +47,7 @@ public:
   template <typename T>
   static Buf_t serialize_to_buf(const T &t)
   {
-    auto res = get_buffer(sizeof(T));
+    Buf_t res = get_buffer(sizeof(T));
     serialize_to_buf<T>(t, res.data());
     return res;
   }
@@ -92,7 +92,7 @@ public:
 
   static Buf_t null_reply()
   {
-    ReplyHeader reply = {.reply_status = ERR, .reply_payload = 0};
+    ReplyHeader reply = {.reply_status = IOCode::Err, .reply_payload = 0};
     return serialize_to_buf(reply);
   }
 };

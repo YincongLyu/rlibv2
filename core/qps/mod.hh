@@ -101,7 +101,7 @@ public:
     \note: this message do **nothing** to check the parameters
    */
   Result<int> send(ibv_send_wr &sr, const usize &num,ibv_send_wr **bad_sr) {
-    auto rc = ibv_post_send(qp, &sr, bad_sr);
+    int rc = ibv_post_send(qp, &sr, bad_sr);
     if (rc == 0) {
       // ok
       return Ok(0);
@@ -114,7 +114,7 @@ public:
    */
   inline std::pair<int,ibv_wc> poll_send_comp() {
     ibv_wc wc;
-    auto poll_result = ibv_poll_cq(cq, 1, &wc);
+    int poll_result = ibv_poll_cq(cq, 1, &wc);
     if (poll_result > 0)
       out_signaled -= 1;
     return std::make_pair(poll_result,wc);
@@ -171,6 +171,7 @@ public:
     auto tail = r.header + num - 1;
     if (tail >= entries)
       tail -= entries;
+    // atmoic op
     auto temp = std::exchange((r.rs + tail)->next, nullptr);
 
     // really post the recvs
@@ -193,8 +194,8 @@ public:
 } // namespace rdmaio
 
 #include "rc.hh"
-#include "ud.hh"
-#include "dc.hh"
+// #include "ud.hh"
+// #include "dc.hh"
 
 //#include "op.hh"
 
@@ -209,7 +210,7 @@ using RCFactory = Factory<register_id_t, RC>;
 
 using QPFactory = Factory<std::string, Dummy>;
 
-using DCFactory = Factory<std::string, DCTarget>;
+// using DCFactory = Factory<std::string, DCTarget>;
 
 const usize kMaxQPNameLen = 63; // the name to index a QP in Factory should be less than 63 bytes
 

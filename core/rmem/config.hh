@@ -12,7 +12,7 @@ namespace rmem {
   Example usage: (generate a flag which has local write and remote read permissions)
   `
   MemoryFlags flags;
-  flags.clear_flags().add_local_write().add_remote_read();
+  flags.clear_flags().add_local_write().add_remote_read().add_remote_write();
 
   // use it:
   auto value = flags.get_value();

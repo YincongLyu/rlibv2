@@ -1,9 +1,12 @@
 [[pass]]
-host = "val09"
+# host = "val09"
+host = "219.228.147.130"
 path = ''
 cmd  = 'cd rib/; ./roserver'
 
 [[pass]]
-host = "val08"
+# host = "val08"
+host = "219.228.147.130"
 path = ''
-cmd  = 'cd rib/; ./roclient -addr val09:8888'
+# cmd  = 'cd rib/; ./roclient -addr val09:8888'
+cmd  = 'cd rib/; ./roclient -addr 219.228.147.130:8888'

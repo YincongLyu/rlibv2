@@ -1,15 +1,19 @@
 #pragma once
 
-#include "qp_config.hpp"
-#include "rnic.hpp"
 
+
+#include <bits/types/struct_timeval.h>
+#include <timer.hh>
+#include "../qps/config.hh"
+#include "../nic.hh"
+using Duration_t = timeval;
 namespace rdmaio
 {
 
 class Info
 {
 public:
-  static std::string qp_addr_to_str(const qp_address_t &addr)
+  static std::string qp_addr_to_str(const RAddress &addr)
   {
     std::stringstream ostr("{");
     ostr << "subnet_prefix: " << addr.subnet_prefix << ";"
@@ -25,21 +29,21 @@ inline int convert_mtu(ibv_mtu type)
   int mtu = 0;
   switch (type)
   {
-  case IBV_MTU_256:
-    mtu = 256;
-    break;
-  case IBV_MTU_512:
-    mtu = 512;
-    break;
-  case IBV_MTU_1024:
-    mtu = 1024;
-    break;
-  case IBV_MTU_2048:
-    mtu = 2048;
-    break;
-  case IBV_MTU_4096:
-    mtu = 4096;
-    break;
+    case IBV_MTU_256:
+      mtu = 256;
+      break;
+    case IBV_MTU_512:
+      mtu = 512;
+      break;
+    case IBV_MTU_1024:
+      mtu = 1024;
+      break;
+    case IBV_MTU_2048:
+      mtu = 2048;
+      break;
+    case IBV_MTU_4096:
+      mtu = 4096;
+      break;
   }
   return mtu;
 }
@@ -69,11 +73,12 @@ public:
                            struct ibv_comp_channel *channel = nullptr,
                            void *ev_ctx = nullptr)
   {
+    // have 1 cq event, can signal the dollbell
     return ibv_create_cq(rnic.ctx, size, ev_ctx, channel, 0);
   }
 
   static ibv_qp *create_qp(ibv_qp_type type, const RNic &rnic,
-                           const QPConfig &config, ibv_cq *send_cq,
+                           const qp::QPConfig &config, ibv_cq *send_cq,
                            ibv_cq *recv_cq)
   {
     struct ibv_qp_init_attr qp_init_attr = {};
@@ -82,16 +87,16 @@ public:
     qp_init_attr.recv_cq = recv_cq;
     qp_init_attr.qp_type = type;
 
-    qp_init_attr.cap.max_send_wr = config.max_send_size;
-    qp_init_attr.cap.max_recv_wr = config.max_recv_size;
+    qp_init_attr.cap.max_send_wr = config.max_send_sz();
+    qp_init_attr.cap.max_recv_wr = config.max_recv_sz();
     qp_init_attr.cap.max_send_sge = 1;
     qp_init_attr.cap.max_recv_sge = 1;
-    qp_init_attr.cap.max_inline_data = MAX_INLINE_SIZE;
+    qp_init_attr.cap.max_inline_data = qp_init_attr.cap.max_send_wr * 2;
+    // qp_init_attr.cap.max_inline_data = MAX_INLINE_SIZE; trade-off, extra move memory vs cpu
 
-    auto qp = ibv_create_qp(rnic.pd, &qp_init_attr);
-    if (qp != nullptr)
-    {
-      auto res = bring_qp_to_init(qp, rnic, config);
+    struct ibv_qp *qp = ibv_create_qp(rnic.pd, &qp_init_attr);
+    if (qp != nullptr) {
+      bool res = bring_qp_to_init(qp, rnic, config);
       if (res)
         return qp;
     }
@@ -106,39 +111,40 @@ public:
     return rc == 0;
   }
 
-  static IOStatus wait_completion(ibv_cq *cq, ibv_wc &wc,
-                                  const Duration_t &timeout = no_timeout)
+  static IOCode wait_completion(ibv_cq *cq, ibv_wc &wc,
+                                  const timeval &timeout)
   {
-
-    Duration_t start;
-    gettimeofday(&start, nullptr);
-    Duration_t now;
-    gettimeofday(&now, nullptr);
+    Timer t;
+    // Duration_t start;
+    auto start = t.start_time_;
+    // gettimeofday(&start, nullptr);  gettimeofday only can be used in C Language
+    // Duration_t now;
+     auto now = std::chrono::steady_clock::now();
+    // gettimeofday(&now, nullptr);
     int poll_result(0);
 
-    do
-    {
+    do {
       asm volatile("" ::
                        : "memory");
       poll_result = ibv_poll_cq(cq, 1, &wc);
-      gettimeofday(&now, nullptr);
-    } while (poll_result == 0 &&
-             !(time_gap(now, start) < time_to_micro(timeout)));
+      // gettimeofday(&now, nullptr);
+      now = std::chrono::steady_clock::now();
+    } while (poll_result == 0 && (t.passed<std::micro>(now) < time_to_micro(timeout))
+             /*!(time_gap(now, start) < time_to_micro(timeout))*/);
 
     if (poll_result == 0)
-      return TIMEOUT;
-    if (poll_result < 0 || wc.status != IBV_WC_SUCCESS)
-    {
+      return Timeout().code;
+    if (poll_result < 0 || wc.status != IBV_WC_SUCCESS) {
       RDMA_LOG_IF(4, wc.status != IBV_WC_SUCCESS)
           << "poll till completion error: " << wc.status << " "
           << ibv_wc_status_str(wc.status);
-      return ERR;
+      return Err().code;
     }
-    return SUCC;
+    return Ok().code;
   }
 
   static bool bring_qp_to_init(ibv_qp *qp, const RNic &rnic,
-                               const QPConfig &config)
+                               const qp::QPConfig &config)
   {
 
     if (qp != nullptr)
@@ -151,13 +157,13 @@ public:
       int flags = IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT;
       if (qp->qp_type == IBV_QPT_RC)
       {
-        qp_attr.qp_access_flags = config.access_flags;
+        qp_attr.qp_access_flags = config.get_access_flags();
         flags |= IBV_QP_ACCESS_FLAGS;
       }
 
       if (qp->qp_type == IBV_QPT_UD)
       {
-        qp_attr.qkey = config.qkey;
+        qp_attr.qkey = config.get_qkey();
         flags |= IBV_QP_QKEY;
       }
 

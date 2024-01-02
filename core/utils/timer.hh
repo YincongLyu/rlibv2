@@ -8,9 +8,12 @@ namespace rdmaio {
  * a simple wrapper over std::time API
  */
 class Timer {
+public:
   std::chrono::time_point<std::chrono::steady_clock> start_time_;
 
 public:
+
+  
   static constexpr double no_timeout() {
     return std::numeric_limits<double>::max();
   }
@@ -21,7 +24,8 @@ public:
 
   ~Timer() = default;
 
-  template <typename T> bool timeout(double count) const {
+  template <typename T> 
+  bool timeout(double count) const {
     return passed<T>() >= count;
   }
 
@@ -29,7 +33,8 @@ public:
 
   double passed_msec() const { return passed<std::chrono::microseconds>(); }
 
-  template <typename T> double passed() const {
+  template <typename T> 
+  double passed() const {;
     return passed<T>(std::chrono::steady_clock::now());
   }
 

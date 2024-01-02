@@ -319,7 +319,7 @@ class Courier2:
                     try:
                         for line in iter(lambda: stdout.readline(2048), ""):
                             if pty and (len(line) > 0): ## ignore null lines
-                                print((("[%s]: " % host) + line), end="")
+                                print((("[%s]: " % host) + line))
                             else:
                                 ret[1] += (line + "\n")
                     except UnicodeDecodeError as e:
@@ -356,8 +356,8 @@ def main():
 
     passes = config.get("pass",[])
 
-    user = config.get("user","wxd")
-    pwd  = config.get("pwd","123")
+    user = config.get("user","yincong")
+    pwd  = config.get("pwd","1")
     passp = config.get("passphrase",None)
     global_configs = config.get("global_configs","")
 

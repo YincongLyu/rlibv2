@@ -3,6 +3,8 @@
 #include "../rctrl.hh"
 
 #include "./recv_helper.hh"
+#include <sstream>
+#include <unordered_map>
 
 namespace rdmaio {
 
@@ -26,7 +28,8 @@ struct RecvCommon {
   T: reserved
   R: recv cq depth for a QP
 */
-template <usize R = 128, usize T = 4096> class RecvManager {
+template <usize R = 128, usize T = 4096>
+class RecvManager {
   static_assert(R <= 2048, "");
 
 public:
@@ -34,7 +37,7 @@ public:
   Factory<std::string, RecvEntries<R>> reg_recv_entries;
 
   /*!
-    we assume RCtrl is a global static variable which never freed.
+    we assume RCtrl is a global static variable which never be freed.
    */
   RCtrl *rctrl_p = nullptr;
 

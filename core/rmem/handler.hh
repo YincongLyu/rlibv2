@@ -33,7 +33,7 @@ struct __attribute__((packed)) RegAttr {
 
   Example:
   `
-  std::Arc<RNic> nic = std::makr_shared<RNic>(...);
+  std::Arc<RNic> nic = std::make_shared<RNic>(...);
   auto mem = Arc<RMem>(1024);
   RegHandler reg(mem,rnic);
   Option<RegAttr> attr = reg.get_reg_attr();
@@ -74,7 +74,7 @@ public:
 
   static Option<Arc<RegHandler>> create(const Arc<RMem> &mem, const Arc<RNic> &nic,
                                 const MemoryFlags &flags = MemoryFlags()) {
-    auto ret = Arc<RegHandler>(new RegHandler(mem,nic,flags));
+    Arc<RegHandler> ret = Arc<RegHandler>(new RegHandler(mem,nic,flags));
     if (ret->valid())
       return ret;
     return {};

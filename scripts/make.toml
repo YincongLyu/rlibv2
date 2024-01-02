@@ -1,4 +1,5 @@
 [[pass]]
-host = "val02"
+# host = "val02"
+host = "219.228.147.130"
 path = ''
 cmd  = 'cd rib/; cmake .; make coretest'

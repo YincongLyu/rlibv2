@@ -51,6 +51,7 @@ public:
     */
   static Result<std::string> host2ip(const std::string &host) {
     static std::mutex lock;
+    // ip_cache example: (host_name, (ip, Timer))
     static std::map<std::string, std::pair<std::string, Timer>> ip_cache;
     const double cache_lease_sec = 10; // the cache will timeout per 10 second
 

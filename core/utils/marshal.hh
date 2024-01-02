@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <string>
 
 #include "../common.hh"
@@ -44,26 +45,36 @@ public:
   }
 
   static bool safe_set_byte(ByteBuffer &buf, usize off, u8 data) {
-    if (off < buf.size()) {
-      *((u8 *)(buf.data() + off)) = data; // unsafe code
+    // if (off < buf.size()) {
+    //   *((u8 *)(buf.data() + off)) = data; // unsafe code, overflow
+    //   return true;
+    // }
+    // return false;
+    if (off < buf.size() && off + sizeof(u8) <= buf.size()) {
+      buf.at(off) = data;
       return true;
     }
     return false;
   }
 
   // dump a type with its default constructor
-  template <typename T> static ByteBuffer dump_null() {
+  template <typename T> 
+  static ByteBuffer dump_null() {
     T t;
     return dump<T>(t);
   }
 
-  template <typename T> static ByteBuffer dump(const T &t) {
-    auto buf = alloc(sizeof(T));
+  template <typename T> 
+  static ByteBuffer dump(const T &t) {
+    ByteBuffer buf = alloc(sizeof(T));
+    // std::copy(&t, t + sizeof(T), buf.begin());
     memcpy((void *)buf.data(), &t, sizeof(T)); // unsafe code
     return buf;
+
   }
 
-  template <typename T> static Option<T> dedump(const ByteBuffer &b) {
+  template <typename T> 
+  static Option<T> dedump(const ByteBuffer &b) {
     if (b.size() >= sizeof(T)) {
       T res;
       memcpy((char *)(&res), b.data(), sizeof(T));

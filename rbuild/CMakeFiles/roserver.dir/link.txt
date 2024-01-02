@@ -1,0 +1,1 @@
+/usr/bin/g++    -g   CMakeFiles/roserver.dir/examples/rc_overflow/server.cc.o  -o roserver -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

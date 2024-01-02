@@ -6,6 +6,7 @@
 namespace rdmaio {
 
 struct __attribute__((packed)) IOCode {
+ 
   enum Code {
     Ok = 0,
     Err = 1,
@@ -48,8 +49,11 @@ struct __attribute__((packed)) DummyDesc {
 /*!
   The abstract result of IO request, with a code and detailed descrption if
   error happens.
+  Example:
+    Result<std::string> r1 = Ok("nice");
 */
-template <typename Desc = DummyDesc> struct Result {
+template <typename Desc = DummyDesc>
+struct Result {
   IOCode code;
   Desc desc;
 
@@ -64,23 +68,28 @@ template <typename Desc = DummyDesc> struct Result {
     auto res = Ok();
     assert(res == IOCode::Ok);
  */
-template <typename D = DummyDesc> inline Result<D> Ok(const D &d = D()) {
+template <typename D = DummyDesc>
+inline Result<D> Ok(const D &d = D()) {
   return {.code = IOCode(IOCode::Ok), .desc = d};
 }
 
-template <typename D = DummyDesc> inline Result<D> NearOk(const D &d = D()) {
+template <typename D = DummyDesc>
+inline Result<D> NearOk(const D &d = D()) {
   return {.code = IOCode(IOCode::NearOk), .desc = d};
 }
 
-template <typename D = DummyDesc> inline Result<D> Err(const D &d = D()) {
+template <typename D = DummyDesc>
+inline Result<D> Err(const D &d = D()) {
   return {.code = IOCode(IOCode::Err), .desc = std::move(d)};
 }
 
-template <typename D = DummyDesc> inline Result<D> Timeout(const D &d = D()) {
+template <typename D = DummyDesc>
+inline Result<D> Timeout(const D &d = D()) {
   return {.code = IOCode(IOCode::Timeout), .desc = d};
 }
 
-template <typename D = DummyDesc> inline Result<D> NotReady(const D &d = D()) {
+template <typename D = DummyDesc>
+inline Result<D> NotReady(const D &d = D()) {
   return {.code = IOCode(IOCode::NotReady), .desc = d};
 }
 

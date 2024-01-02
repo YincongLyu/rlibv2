@@ -59,7 +59,7 @@ enum loglevel {
 #define RDMA_LOG_IF(n, condition)                                              \
   if (n >= RDMA_LOG_LEVEL && (condition))                                      \
   ::rdmaio::MessageLogger((char *)__FILE__, __LINE__, n).stream()
-
+// condition，T | F
 #define RDMA_ASSERT(condition)                                                 \
   if (unlikely(!(condition)))                                                  \
   ::rdmaio::MessageLogger((char *)__FILE__, __LINE__, ::rdmaio::FATAL + 1)     \

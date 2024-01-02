@@ -2,7 +2,8 @@
 
 #include "../nic.hh"
 #include "./config.hh"
-
+#include "mod.hh"
+#include <infiniband/verbs.h>
 namespace rdmaio {
 
 namespace qp {
@@ -53,12 +54,12 @@ public:
     qp_attr.rq_psn = config.rq_psn; // should this match the sender's psn ?
     qp_attr.max_dest_rd_atomic = config.max_dest_rd_atomic;
     qp_attr.min_rnr_timer = 20;
-
+    // ibv_ah_attr ah_attr是远程qp的信息
     qp_attr.ah_attr.dlid = attr.lid;
     qp_attr.ah_attr.sl = 0;
     qp_attr.ah_attr.src_path_bits = 0;
     qp_attr.ah_attr.port_num = port_id; /* Local port id! */
-
+    
     qp_attr.ah_attr.is_global = 1;
     qp_attr.ah_attr.grh.dgid.global.subnet_prefix = attr.addr.subnet_prefix;
     qp_attr.ah_attr.grh.dgid.global.interface_id = attr.addr.interface_id;
@@ -69,7 +70,7 @@ public:
     int flags = IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU | IBV_QP_DEST_QPN |
                 IBV_QP_RQ_PSN | IBV_QP_MAX_DEST_RD_ATOMIC |
                 IBV_QP_MIN_RNR_TIMER;
-    auto rc = ibv_modify_qp(qp, &qp_attr, flags);
+    int rc = ibv_modify_qp(qp, &qp_attr, flags);
     if (rc != 0)
       return Err(std::string(strerror(errno)));
     return Ok(std::string(""));
@@ -105,7 +106,8 @@ public:
             // below two variables used for creating channel
             void *ev_ctx = nullptr,
             struct ibv_comp_channel *channel = nullptr) {
-    auto ccq = ibv_create_cq(nic->get_ctx(), cq_sz, ev_ctx, channel, 0);
+    /*comp_vector是用来通知completion event的压力分到几个core上*/          
+    struct ibv_cq *ccq = ibv_create_cq(nic->get_ctx(), cq_sz, ev_ctx, channel, 0);
     if (ccq == nullptr) {
       return Err(std::make_pair(ccq, std::string(strerror(errno))));
     }
@@ -140,7 +142,7 @@ public:
     qp_init_attr.cap.max_recv_sge = 1;
     qp_init_attr.cap.max_inline_data = kMaxInlinSz;
 
-    auto qp = ibv_create_qp(nic->get_pd(), &qp_init_attr);
+    struct ibv_qp *qp = ibv_create_qp(nic->get_pd(), &qp_init_attr);
     if (qp == nullptr) {
       return Err(std::make_pair(qp, std::string(strerror(errno))));
     }
@@ -154,80 +156,81 @@ public:
     memset((void *)&attr, 0, sizeof(attr));
     attr.attr.max_wr = max_wr;
     attr.attr.max_sge = max_sge;
-    auto srq = ibv_create_srq(nic->get_pd(), &attr);
+    struct ibv_srq *srq = ibv_create_srq(nic->get_pd(), &attr);
 
     if (srq == nullptr) {
       return Err(std::make_pair(srq, std::string(strerror(errno))));
     }
     return Ok(std::make_pair(srq, std::string("")));
   }
+  // dct: Dynamic Connection Table
+  // DCI: Dynamic Connected Transport
+  // using CreateDCTRes_t = Result<std::pair<ibv_exp_dct *, std::string>>;
+  // static CreateDCTRes_t create_dct(Arc<RNic> nic,
+  //                                  ibv_cq *cq, ibv_srq *srq,
+  //                                  int dc_key)
+  // {
+  //   if (cq == nullptr) {
+  //     return Err(std::make_pair<ibv_exp_dct *, std::string>(nullptr,
+  //                                                      "CQ passed in as null"));
+  //   }
 
-  using CreateDCTRes_t = Result<std::pair<ibv_exp_dct *, std::string>>;
-  static CreateDCTRes_t create_dct(Arc<RNic> nic,
-                                   ibv_cq *cq, ibv_srq *srq,
-                                   int dc_key)
-  {
-    if (cq == nullptr) {
-      return Err(std::make_pair<ibv_exp_dct *, std::string>(nullptr,
-                                                       "CQ passed in as null"));
-    }
+  //   if (srq == nullptr) {
+  //     return Err(std::make_pair<ibv_exp_dct *, std::string>(nullptr,
+  //                                                      "SRQ passed in as null"));
+  //   }
 
-    if (srq == nullptr) {
-      return Err(std::make_pair<ibv_exp_dct *, std::string>(nullptr,
-                                                       "SRQ passed in as null"));
-    }
+  //   struct ibv_exp_dct_init_attr dctattr;
+  //   memset((void *)&dctattr, 0, sizeof(dctattr));
+  //   dctattr.pd = nic->get_pd();
+  //   dctattr.cq = cq;
+  //   dctattr.srq = srq;
+  //   dctattr.dc_key = dc_key;
+  //   dctattr.port = 1;
+  //   dctattr.access_flags = IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ;
+  //   dctattr.min_rnr_timer = 2;
+  //   dctattr.tclass = 0;
+  //   dctattr.flow_label = 0;
+  //   dctattr.mtu = IBV_MTU_4096;
+  //   dctattr.pkey_index = 0;
+  //   dctattr.hop_limit = 1;
+  //   dctattr.create_flags = 0;
+  //   dctattr.inline_size = 60;
+  //   auto dct = ibv_exp_create_dct(nic->get_ctx(), &dctattr);
+  //   if (dct == nullptr) {
+  //     return Err(std::make_pair(dct, std::string(strerror(errno))));
+  //   }
+  //   return Ok(std::make_pair(dct, std::string("")));
+  // }
 
-    struct ibv_exp_dct_init_attr dctattr;
-    memset((void *)&dctattr, 0, sizeof(dctattr));
-    dctattr.pd = nic->get_pd();
-    dctattr.cq = cq;
-    dctattr.srq = srq;
-    dctattr.dc_key = dc_key;
-    dctattr.port = 1;
-    dctattr.access_flags = IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ;
-    dctattr.min_rnr_timer = 2;
-    dctattr.tclass = 0;
-    dctattr.flow_label = 0;
-    dctattr.mtu = IBV_MTU_4096;
-    dctattr.pkey_index = 0;
-    dctattr.hop_limit = 1;
-    dctattr.create_flags = 0;
-    dctattr.inline_size = 60;
-    auto dct = ibv_exp_create_dct(nic->get_ctx(), &dctattr);
-    if (dct == nullptr) {
-      return Err(std::make_pair(dct, std::string(strerror(errno))));
-    }
-    return Ok(std::make_pair(dct, std::string("")));
-  }
+  // using CreateQPEXRes_t = Result<std::pair<ibv_qp *, std::string>>;
+  // static CreateQPEXRes_t create_qp_ex(Arc<RNic> nic, const QPConfig &config,
+  //                                ibv_cq *cq, // send cq
+  //                                ibv_cq *recv_cq = nullptr) {
+  //   if (cq == nullptr) {
+  //     return Err(std::make_pair<ibv_qp *, std::string>(nullptr,
+  //                                             "CQ passed in as null"));
+  //   }
 
-  using CreateQPEXRes_t = Result<std::pair<ibv_qp *, std::string>>;
-  static CreateQPEXRes_t create_qp_ex(Arc<RNic> nic, const QPConfig &config,
-                                 ibv_cq *cq, // send cq
-                                 ibv_cq *recv_cq = nullptr) {
-    if (cq == nullptr) {
-      return Err(std::make_pair<ibv_qp *, std::string>(nullptr,
-                                              "CQ passed in as null"));
-    }
+  //   if (recv_cq == nullptr) {
+  //     recv_cq = cq;
+  //   }
+  //   struct ibv_qp_init_attr_ex qp_init_attr = {};
+  //   qp_init_attr.send_cq = cq;
+  //   qp_init_attr.recv_cq = recv_cq;
+  //   qp_init_attr.cap.max_send_wr = config.max_send_sz();
+  //   qp_init_attr.cap.max_send_sge = 1;
+  //   qp_init_attr.cap.max_inline_data = kMaxInlinSz;
+  //   qp_init_attr.qp_type = IBV_EXP_QPT_DC_INI;
+  //   qp_init_attr.pd = nic->get_pd();
+  //   qp_init_attr.comp_mask = IBV_QP_INIT_ATTR_PD;
 
-    if (recv_cq == nullptr) {
-      recv_cq = cq;
-    }
-    struct ibv_qp_init_attr_ex qp_init_attr = {};
-    qp_init_attr.send_cq = cq;
-    qp_init_attr.recv_cq = recv_cq;
-    qp_init_attr.cap.max_send_wr = config.max_send_sz();
-    qp_init_attr.cap.max_send_sge = 1;
-    qp_init_attr.cap.max_inline_data = kMaxInlinSz;
-    qp_init_attr.qp_type = IBV_EXP_QPT_DC_INI;
-    qp_init_attr.pd = nic->get_pd();
-    qp_init_attr.comp_mask = IBV_QP_INIT_ATTR_PD;
-
-    auto qp = ibv_create_qp_ex(nic->get_ctx(), &qp_init_attr);
-    if (qp == nullptr) {
-      return Err(std::make_pair(qp, std::string(strerror(errno))));
-    }
-    return Ok(std::make_pair(qp, std::string("")));
-  }
+  //   auto qp = ibv_create_qp_ex(nic->get_ctx(), &qp_init_attr);
+  //   if (qp == nullptr) {
+  //     return Err(std::make_pair(qp, std::string(strerror(errno))));
+  //   }
+  //   return Ok(std::make_pair(qp, std::string("")));
+  // }
 };
 
 } // namespace qp

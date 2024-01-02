@@ -18,8 +18,7 @@ enum op_type {
  This is a simple wrapper over the RC API provided by the RLib,
  which itself is a wrapper of libibverbs.
 
- Example usage:  // read 1 bytes at remote machine with address 0xc using
- one-sided RDMA.
+ Example usage:  // read 1 bytes at remote machine with address 0xc using one-sided RDMA.
       Arc<RC> qp; // some pre-initialized QP
 
       // An example of using Op to post an one-sided RDMA read.
@@ -40,7 +39,8 @@ enum op_type {
       op.set_payload(lbuf_ptr, sizeof(u64), lmr.key)
       auto ret = op.execute(qp, IBV_SEND_SIGNALED);
  */
-template <usize NSGE = 1> struct Op {
+template <usize NSGE = 1>
+struct Op {
   static_assert(NSGE > 0 && NSGE <= 64, "shoud use NSGE in (0,64]");
   ibv_send_wr wr;
   ibv_sge sges[NSGE];
@@ -166,8 +166,7 @@ public:
     return ::rdmaio::Err(std::string(strerror(errno)));
   }
 
-  inline auto execute(const Arc<RC> &qp, const int &flags = 0, u64 wr_id = 0)
-      -> Result<std::string> {
+  inline auto execute(const Arc<RC> &qp, const int &flags = 0, u64 wr_id = 0) -> Result<std::string> {
 
     RC *qp_ptr = ({  // unsafe code
       RC *temp = qp.get();

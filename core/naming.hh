@@ -7,6 +7,7 @@
 namespace rdmaio {
 
 /*!
+ * used in TCP/IP connect & config.file
  */
 using HostId = std::tuple<std::string, int>; // TCP host host,port
 
