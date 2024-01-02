@@ -16,7 +16,7 @@ using namespace rdmaio::rmem;
 
 using Thread_t = bench::Thread<usize>;
 
-DEFINE_string(addr, "val09:8888", "Server address to connect to.");
+DEFINE_string(addr, "219.228.147.129:8888", "Server address to connect to.");
 DEFINE_int64(threads, 1, "#Threads used.");
 DEFINE_int64(payload, 1024, "Payload of each req");
 DEFINE_string(client_name, "localhost", "Unique name to identify machine.");

@@ -3,6 +3,7 @@
 *.swp
 *.DS_Store
 build/
+rbuild/
 .vs/
 .vscode/
 .git/
