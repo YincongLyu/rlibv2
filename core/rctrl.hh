@@ -53,9 +53,6 @@ public:
         proto::FetchQPAttr,
         std::bind(&RCtrl::fetch_qp_attr_wrapper, this, std::placeholders::_1)));
 
-    // RDMA_ASSERT(rpc.register_handler(
-    //     proto::FetchDCAttr,
-    //     std::bind(&RCtrl::fetch_dc_attr_wrapper, this, std::placeholders::_1)));
   }
 
   ~RCtrl() {
@@ -149,16 +146,6 @@ private:
     return fetch_qp_attr(req, 0);
   }
 
-  // ByteBuffer fetch_dc_attr_wrapper(const ByteBuffer &b) {
-  //   auto req_o = ::rdmaio::Marshal::dedump<proto::QPReq>(b);
-  //   if (!req_o)
-  //     return ::rdmaio::Marshal::dump<proto::DCReply>(
-  //         {.status = proto::CallbackStatus::WrongArg});
-  //   proto::RCReq req = {};
-  //   memcpy(req.name, req_o.value().name, ::rdmaio::qp::kMaxQPNameLen + 1);
-  //   return fetch_dc_attr(req, 0);
-  // }
-
   /*!
     Given a RCReq, query its attribute from the QPs
     \ret: Marshalling RCReply to a Bytebuffer
@@ -176,17 +163,6 @@ public:
         {.status = proto::CallbackStatus::NotFound});
   }
 
-  // ByteBuffer fetch_dc_attr(const proto::RCReq &req, const u64 &key) {
-  //   auto dc = registered_dcs.query(req.name);
-  //   if (dc) {
-  //     return ::rdmaio::Marshal::dump<proto::DCReply>(
-  //         {.status = proto::CallbackStatus::Ok,
-  //          .attr = dc.value()->remote_dct_attr,
-  //          .key = key});
-  //   }
-  //   return ::rdmaio::Marshal::dump<proto::DCReply>(
-  //       {.status = proto::CallbackStatus::NotFound});
-  // }
 
 private:
   /*!

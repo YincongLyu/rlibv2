@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/dc_server.dir/benchs/dc_bench/dc_server.cc.o  -o dc_server -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

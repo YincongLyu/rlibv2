@@ -18,10 +18,14 @@ class OpTest : public testing::Test{
     ASSERT_FALSE(res.empty());
     nic = std::make_shared<RNic>(res[0]);
     ASSERT_TRUE(nic->valid());
+    RDMA_LOG(INFO) << "NIC port: " << nic->id.port_id;
 
     auto config = QPConfig();
+
+    RDMA_LOG(INFO) << "create qp's send qkey: " << config.get_qkey();
     qp = RC::create(nic, config).value();
     ASSERT_TRUE(qp->valid());
+    RDMA_LOG(INFO) << "create qp's mr size: " << qp->local_mr->sz;
 
     auto res_c = qp->connect(qp->my_attr());
     RDMA_ASSERT(res_c == IOCode::Ok);

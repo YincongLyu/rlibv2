@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/wclient.dir/examples/rc_write/client.cc.o  -o wclient -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

@@ -2,12 +2,14 @@
 
 #include <cstring>
 #include <memory>
+#include <utility>
 
 #include "../nic.hh"
 #include "../utils/abs_factory.hh"
 
 #include "./config.hh"
 #include "./mem.hh"
+#include "../utils/logging.hh"
 
 namespace rdmaio {
 
@@ -57,12 +59,17 @@ public:
       : rmem(mem), rnic(nic) {
 
     if (rnic->valid()) {
-
       auto raw_ptr = rmem->raw_ptr;
       auto raw_sz = rmem->sz;
-
+      // 这条语句没有成功执行？
+      // RDMA_LOG(INFO) << "rnic's device name: " << nic->get_pd()->context->device->dev_name;
+      int flag = 1;
+      if (raw_ptr == nullptr || raw_sz == 0) flag = 0;
+      RDMA_LOG(INFO) << "outside pass mem's info: " << flag << "," << raw_sz;
       mr = ibv_reg_mr(rnic->get_pd(), raw_ptr, raw_sz, flags.get_value());
-
+      std::string ask = "null";
+      if (mr) ask = "not null";
+      RDMA_LOG(INFO) << "now the if the mr is null? " << ask;
       if (!valid()) {
         RDMA_LOG(4) << "register mr failed at addr: (" << raw_ptr << ","
                     << raw_sz << ")"

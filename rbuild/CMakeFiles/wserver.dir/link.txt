@@ -1,1 +1,0 @@
-/usr/bin/g++    -g   CMakeFiles/wserver.dir/examples/rc_write/server.cc.o  -o wserver -rdynamic -lpthread -libverbs examples/gflags/libgflags_nothreads.a 

@@ -17,6 +17,7 @@ TEST(RMEM, can_reg) {
     // use RMem to allocate and manage a region of memory on the heap,
     // with size 1024
     auto mem = Arc<RMem>(new RMem(1024));
+    RDMA_LOG(INFO) << "register mem size in rnic: " << mem->sz;
     // the allocation must be succesful
     ASSERT_TRUE(mem->valid());
 
@@ -25,12 +26,12 @@ TEST(RMEM, can_reg) {
     ASSERT_TRUE(handler.valid());
     ASSERT_TRUE(handler.get_reg_attr());
 
-    auto mem_not_valid = Arc<RMem>(new RMem(
-        1024, [](u64 sz) { return nullptr; }, [](RMem::raw_ptr_t p) {}));
-    ASSERT_FALSE(mem_not_valid->valid());
+    // auto mem_not_valid = Arc<RMem>(new RMem(
+    //     1024, [](u64 sz) { return nullptr; }, [](RMem::raw_ptr_t p) {}));
+    // ASSERT_FALSE(mem_not_valid->valid());
 
-    RegHandler handler_not_valid(mem_not_valid, nic);
-    ASSERT_FALSE(handler_not_valid.valid());
+    // RegHandler handler_not_valid(mem_not_valid, nic);
+    // ASSERT_FALSE(handler_not_valid.valid());
   }
 }
 

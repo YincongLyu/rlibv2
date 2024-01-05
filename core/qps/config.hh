@@ -12,12 +12,8 @@ const u32 kDefaultQKey = 0x111111;
 const u32 kDefaultPSN = 3185;
 const u32 kRcMaxSendSz = 128;
 const u32 kRcMaxRecvSz = 2048;
-const u32 kDcKey = 1024;
 
 class RC;
-class UD;
-// class DC;
-class DCTarget;
 class Impl;
 
 struct __attribute__((packed))  QPConfig {
@@ -92,10 +88,6 @@ public:
     return *this;
   }
 
-  QPConfig &set_dc_key(int k) {
-    dc_key = k;
-    return *this;
-  }
 
   bool allow_remote_read() const {
     return (access_flags & IBV_ACCESS_REMOTE_READ) != 0;
@@ -127,12 +119,7 @@ private:
 
   int qkey = kDefaultQKey;
 
-  int dc_key = kDcKey;
-
   friend class RC;
-  friend class UD;
-  friend class DC;
-  friend class DCTarget;
   friend class Impl;
 }; // class QPConfig
 
